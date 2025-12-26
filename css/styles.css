@@ -1,0 +1,99 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+}
+
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    background: white;
+    padding: 30px;
+    width: 300px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.login-container input {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+button {
+    padding: 10px;
+    width: 100%;
+    background: #1f3a5f;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.app {
+    display: flex;
+}
+
+.sidebar {
+    width: 220px;
+    background: #1f3a5f;
+    color: white;
+    height: 100vh;
+    padding: 20px;
+}
+
+.sidebar a {
+    color: white;
+    display: block;
+    margin: 10px 0;
+    text-decoration: none;
+}
+
+.content {
+    padding: 20px;
+    width: 100%;
+}
+
+.cards {
+    display: flex;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    flex: 1;
+}
+
+.warning { background: #f39c12; color: white; }
+.danger { background: #e74c3c; color: white; }
+
+table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.alert {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 6px;
+}
+
+.chat-box {
+    background: white;
+    padding: 15px;
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
