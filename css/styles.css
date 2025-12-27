@@ -209,3 +209,38 @@ input[type="text"] {
     border-radius: 10px;
     border: 1px solid #ddd;
 }
+
+/* LOGO SIDEBAR */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 10px 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    margin-bottom: 20px;
+}
+
+.logo-container img {
+    max-width: 140px;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+}
+
+
+/* Contenedor del logo */
+.logo-container {
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilos de la imagen del logo */
+.logo-container img {
+    max-width: 80%; /* Evita que se salga del borde */
+    height: auto;
+    display: block;
+    /* Si el logo es oscuro y quieres que se vea blanco, usa esta línea: */
+    filter: brightness(0) invert(1); 
+}
