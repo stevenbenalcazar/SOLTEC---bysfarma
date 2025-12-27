@@ -1,99 +1,211 @@
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f5f7fa;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
+
+:root {
+    --azul-profesional: #0047B9;
+    --azul-tecnologico: #009FE3;
+    --turquesa-innovacion: #33D4D1;
+    --blanco: #ffffff;
+    --gris-fondo: #f4f7fb;
+    --gris-texto: #555;
 }
 
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+body {
+    background: var(--gris-fondo);
+    color: var(--gris-texto);
+}
+
+/* LOGIN */
 .login-body {
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    background: linear-gradient(
+        135deg,
+        var(--azul-profesional),
+        var(--azul-tecnologico)
+    );
 }
 
 .login-container {
-    background: white;
-    padding: 30px;
-    width: 300px;
+    background: var(--blanco);
+    width: 360px;
+    padding: 40px;
+    border-radius: 14px;
     text-align: center;
-    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.15);
+}
+
+.login-container img {
+    width: 180px;
+    margin-bottom: 20px;
+}
+
+.login-container p {
+    font-size: 14px;
+    margin-bottom: 25px;
 }
 
 .login-container input {
     width: 100%;
-    margin: 10px 0;
-    padding: 10px;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
 }
 
-button {
-    padding: 10px;
-    width: 100%;
-    background: #1f3a5f;
+.login-container button {
+    background: linear-gradient(
+        90deg,
+        var(--azul-profesional),
+        var(--turquesa-innovacion)
+    );
     color: white;
     border: none;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
     cursor: pointer;
 }
 
+/* LAYOUT */
 .app {
     display: flex;
+    height: 100vh;
 }
 
+/* SIDEBAR */
 .sidebar {
-    width: 220px;
-    background: #1f3a5f;
+    width: 240px;
+    background: linear-gradient(
+        180deg,
+        var(--azul-profesional),
+        var(--azul-tecnologico)
+    );
     color: white;
-    height: 100vh;
-    padding: 20px;
+    padding: 25px;
+}
+
+.sidebar img {
+    width: 160px;
+    margin-bottom: 30px;
 }
 
 .sidebar a {
-    color: white;
     display: block;
-    margin: 10px 0;
+    color: white;
     text-decoration: none;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: 500;
 }
 
+.sidebar a:hover {
+    background: rgba(255,255,255,.15);
+}
+
+/* CONTENIDO */
 .content {
-    padding: 20px;
-    width: 100%;
+    flex: 1;
+    padding: 30px;
 }
 
+.content h1 {
+    color: var(--azul-profesional);
+    margin-bottom: 25px;
+}
+
+/* DASHBOARD CARDS */
 .cards {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
 }
 
 .card {
     background: white;
-    padding: 20px;
-    border-radius: 8px;
-    flex: 1;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.06);
+    font-weight: 600;
 }
 
-.warning { background: #f39c12; color: white; }
-.danger { background: #e74c3c; color: white; }
+.card span {
+    font-size: 28px;
+    display: block;
+    margin-top: 10px;
+    color: var(--azul-tecnologico);
+}
 
+/* TABLAS */
 table {
     width: 100%;
     background: white;
-    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,.05);
 }
 
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
+th {
+    background: var(--azul-profesional);
+    color: white;
+    padding: 14px;
 }
 
+td {
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+}
+
+/* ALERTAS */
 .alert {
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 6px;
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-weight: 500;
 }
 
+.alert.danger {
+    background: #ffe5e5;
+    color: #c0392b;
+}
+
+.alert.warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* CHATBOT */
 .chat-box {
     background: white;
-    padding: 15px;
-    height: 300px;
-    overflow-y: auto;
-    margin-bottom: 10px;
+    height: 320px;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.05);
+}
+
+.bot {
+    background: var(--azul-tecnologico);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
 }
