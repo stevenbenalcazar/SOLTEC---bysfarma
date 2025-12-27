@@ -229,7 +229,7 @@ input[type="text"] {
 
 /* Contenedor del logo */
 .logo-container {
-    padding: 20px;
+    padding: 1px;
     text-align: center;
     display: flex;
     justify-content: center;
