@@ -1,7 +1,7 @@
-SOLTEC - Sistema Inteligente de Gestión de Inventarios 🚀
+# SOLTEC - Sistema Inteligente de Gestión de Inventarios 🚀
 SOLTEC es una solución integral diseñada para optimizar el control de inventarios en farmacias o bodegas técnicas. El sistema combina un potente backend en Python con una interfaz web moderna, permitiendo la gestión masiva de productos (900+ registros) y análisis de stock en tiempo real.
 
-🛠️ Tecnologías Utilizadas
+## 🛠️ Tecnologías Utilizadas
 Frontend: HTML5, CSS3 (Diseño responsivo), JavaScript (ES6+), Chart.js (Visualización de datos).
 
 Backend: Python 3.x, Flask (Framework web), Flask-SQLAlchemy (ORM), Flask-CORS, Flask-Bcrypt (Seguridad).
@@ -10,7 +10,7 @@ Base de Datos: MySQL 8.0+.
 
 Procesamiento de Datos: Pandas & OpenPyXL (Para la migración masiva desde Excel/CSV).
 
-📋 Características Principales
+## 📋 Características Principales
 Autenticación Segura: Sistema de login con roles diferenciados (Admin y Operador).
 
 Dashboard Dinámico: Visualización de KPIs como Total de Productos, Stock Bajo y Alertas de Caducidad.
@@ -21,36 +21,41 @@ Seguridad por Roles: El acceso a la gestión de usuarios está restringido únic
 
 Chatbot IA (Simulado): Interfaz preparada para consultas inteligentes sobre el stock.
 
-⚙️ Configuración del Entorno
+## ⚙️ Configuración del Entorno
 1. Requisitos Previos
-Tener instalado Python 3.10+.
-
-Servidor MySQL (XAMPP, WAMP o MySQL Installer).
+* Tener instalado Python 3.10+.
+* Servidor MySQL (XAMPP, WAMP o MySQL Installer).
 
 2. Base de Datos
-Crea la base de datos en tu servidor MySQL y configura las tablas ejecutando el script de inicio o dejando que SQLAlchemy las cree automáticamente.
+* Crea la base de datos en tu servidor MySQL:
+* SQL
+* CREATE DATABASE soltec_inventario;
 
-SQL
-
-CREATE DATABASE soltec_inventario;
 Asegúrate de configurar tus credenciales en backend/config.py.
 
 3. Instalación
-Desde la terminal (Git Bash o VS Code), clona el proyecto y configura el entorno virtual:
+* Desde la terminal (Git Bash o VS Code), clona el proyecto y configura el entorno virtual:
+* Bash
 
-Bash
+## Activar entorno virtual
+python -m venv venv
 
-# Activar entorno virtual
-source venv/Scripts/activate
+### Activación del Entorno Virtual según tu Terminal
+| Terminal | Comando de Activación |
+| :--- | :--- |
+| **Git Bash** | `source venv/Scripts/activate` |
+| **PowerShell** | `.\venv\Scripts\Activate.ps1` |
+| **CMD** | `.\venv\Scripts\activate` |
 
-# Instalar dependencias
+## Instalar dependencias
 pip install -r requirements.txt
-🚀 Cómo Correr el Programa
+## 🚀 Cómo Correr el Programa
 Iniciar el Backend:
 
 Bash
+* python backend/app.py
 
-python backend/app.py
+
 El servidor correrá en http://127.0.0.1:5000.
 
 Abrir el Frontend:
