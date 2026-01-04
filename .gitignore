@@ -1,0 +1,25 @@
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+
+# ===== Entorno virtual =====
+venv/
+.env
+
+# ===== Flask =====
+instance/
+*.log
+
+# ===== IDEs =====
+.vscode/
+.idea/
+
+# ===== Sistema =====
+.DS_Store
+Thumbs.db
+
+# ===== MySQL =====
+*.sql~
