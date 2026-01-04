@@ -1,4 +1,7 @@
 from database import db
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 
 class Usuario(db.Model):
     __tablename__ = "usuarios"
@@ -10,5 +13,10 @@ class Usuario(db.Model):
     rol = db.Column(db.String(50), nullable=False)
     estado = db.Column(db.Boolean, default=True)
 
-    def __repr__(self):
-        return f"<Usuario {self.correo}>"
+    # Guardar contraseña hasheada
+    def set_password(self, plain_password):
+        self.password = bcrypt.generate_password_hash(plain_password).decode('utf-8')
+
+    # Verificar contraseña
+    def check_password(self, plain_password):
+        return bcrypt.check_password_hash(self.password, plain_password)

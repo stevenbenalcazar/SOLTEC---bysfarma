@@ -163,3 +163,105 @@ async function enviarMensaje(event) {
         input.value = "";
     }
 }
+
+async function login() {
+    const correo = document.getElementById("correo").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("http://127.0.0.1:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo, password })
+    });
+
+    if (!res.ok) {
+        alert("Credenciales incorrectas");
+        return;
+    }
+
+    const data = await res.json();
+
+    // GUARDAR USUARIO
+    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+    window.location.href = "dashboard.html";
+}
+
+function protegerRutaAdmin() {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if (!usuario || usuario.rol !== "admin") {
+        alert("Acceso denegado");
+        window.location.href = "dashboard.html";
+    }
+}
+
+async function cargarUsuarios() {
+    const res = await fetch(`${API_URL}/usuarios`);
+    const usuarios = await res.json();
+
+    const tabla = document.getElementById("tablaUsuarios");
+    tabla.innerHTML = "";
+
+    usuarios.forEach(u => {
+        tabla.innerHTML += `
+            <tr>
+                <td>${u.nombre}</td>
+                <td>${u.correo}</td>
+                <td>${u.rol}</td>
+                <td>${u.estado ? "Activo" : "Inactivo"}</td>
+                <td>
+                    <button onclick="cambiarEstado(${u.id})">
+                        ${u.estado ? "Desactivar" : "Activar"}
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+async function crearUsuario() {
+    const nombre = document.getElementById("nombre").value;
+    const correo = document.getElementById("correo").value;
+    const password = document.getElementById("password").value;
+    const rol = document.getElementById("rol").value;
+
+    const res = await fetch(`${API_URL}/usuarios`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, correo, password, rol })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    cargarUsuarios();
+}
+
+async function cambiarEstado(id) {
+    await fetch(`${API_URL}/usuarios/${id}/estado`, {
+        method: "PUT"
+    });
+
+    cargarUsuarios();
+}
+
+function mostrarMenuUsuariosSegunRol() {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    // Si no hay usuario logueado, ocultar siempre
+    if (!usuario) return;
+
+    const menuUsuarios = document.querySelector('a[href="usuarios.html"]');
+    if (!menuUsuarios) return;
+
+    // Solo mostrar si el rol es admin
+    if (usuario.rol !== "admin") {
+        menuUsuarios.style.display = "none";
+    } else {
+        menuUsuarios.style.display = "block";
+    }
+}
+
+// Llamar la función al cargar la página
+mostrarMenuUsuariosSegunRol();

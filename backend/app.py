@@ -12,6 +12,8 @@ from routes.inventario import inventario_bp
 from routes.alertas import alertas_bp
 from routes.chatbot import chatbot_bp
 from routes.auth import auth_bp
+from routes.usuarios import usuarios_bp
+
 
 def create_app():
     app = Flask(__name__)
@@ -26,6 +28,7 @@ def create_app():
     app.register_blueprint(alertas_bp, url_prefix="/api")
     app.register_blueprint(chatbot_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api")
+    app.register_blueprint(usuarios_bp, url_prefix="/api")
     # Crear tablas
     with app.app_context():
         db.create_all()
