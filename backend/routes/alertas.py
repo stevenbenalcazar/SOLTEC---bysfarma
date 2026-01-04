@@ -5,7 +5,6 @@ from datetime import date
 
 alertas_bp = Blueprint("alertas", __name__)
 
-
 @alertas_bp.route("/alertas", methods=["GET"])
 def obtener_alertas():
     alertas = Alerta.query.all()
@@ -23,12 +22,12 @@ def obtener_alertas():
     return jsonify(data)
 
 
-@alertas_bp.route("/alertas/generar", methods=["POST"])
+@alertas_bp.route("/alertas/generar", methods=["GET"])
 def generar_alertas():
     productos = Producto.query.all()
 
     for p in productos:
-        if p.stock <= p.stock_minimo:
+        if p.stock <= 5:
             alerta = Alerta(
                 tipo="Stock Bajo",
                 descripcion=f"El producto {p.nombre} tiene stock bajo",
@@ -36,7 +35,7 @@ def generar_alertas():
             )
             db.session.add(alerta)
 
-        if p.fecha_caducidad <= date.today():
+        if p.fecha_caducidad and p.fecha_caducidad <= date.today():
             alerta = Alerta(
                 tipo="Producto Caducado",
                 descripcion=f"El producto {p.nombre} está caducado",
@@ -45,5 +44,4 @@ def generar_alertas():
             db.session.add(alerta)
 
     db.session.commit()
-
     return jsonify({"message": "Alertas generadas correctamente"})

@@ -24,13 +24,18 @@
     
 
     <main class="content">
-        <h1>Chatbot Inteligente 🤖</h1>
+        <h1>Chatbot</h1>
 
-        <div class="chat-box">
-            <div class="bot">Hola 👋 ¿En qué puedo ayudarte?</div>
-        </div>
-
-        <input type="text" placeholder="Escribe tu consulta..." onkeydown="sendMessage(event)">
+        <div class="chat-container">
+            <div id="chatBox" class="chat-box"></div>
+        
+            <input
+                type="text"
+                id="mensaje"
+                placeholder="Escribe tu consulta..."
+                onkeypress="enviarMensaje(event)"
+            >
+        </div>       
     </main>
 </div>
 

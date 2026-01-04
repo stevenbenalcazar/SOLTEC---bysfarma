@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from database import db
-from models import Producto
+from models import Producto, Alerta
 
 inventario_bp = Blueprint("inventario", __name__)
 
@@ -41,3 +41,15 @@ def crear_producto():
     db.session.commit()
 
     return jsonify({"message": "Producto creado correctamente"}), 201
+
+@inventario_bp.route("/dashboard", methods=["GET"])
+def dashboard_data():
+    total_productos = Producto.query.count()
+    stock_bajo = Producto.query.filter(Producto.stock <= 5).count()
+    alertas_activas = Alerta.query.filter(Alerta.estado == "activa").count()
+
+    return {
+        "total_productos": total_productos,
+        "stock_bajo": stock_bajo,
+        "alertas_activas": alertas_activas
+    }

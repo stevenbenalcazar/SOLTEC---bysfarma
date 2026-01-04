@@ -244,3 +244,65 @@ input[type="text"] {
     /* Si el logo es oscuro y quieres que se vea blanco, usa esta línea: */
     filter: brightness(0) invert(1); 
 }
+
+/* ===== DASHBOARD ===== */
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 25px;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+}
+
+.card h3 {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 2.4rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Colores por tipo */
+.card-primary p {
+    color: #2563eb; /* Azul tecnológico */
+}
+
+.card-warning p {
+    color: #f59e0b; /* Amarillo alerta */
+}
+
+.card-danger p {
+    color: #dc2626; /* Rojo crítico */
+}
+/* ===== GRÁFICOS ===== */
+
+.chart-container {
+    margin-top: 40px;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.chart-container h2 {
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    color: #333;
+}
