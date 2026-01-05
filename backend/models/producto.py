@@ -10,6 +10,7 @@ class Producto(db.Model):
     stock_minimo = db.Column(db.Integer, nullable=False, default=5)
     fecha_caducidad = db.Column(db.Date, nullable=False)
     lote = db.Column(db.String(50))
+    precio = db.Column(db.Numeric(10, 2), nullable=False)
 
     movimientos = db.relationship(
         "Movimiento",

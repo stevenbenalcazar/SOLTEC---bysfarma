@@ -18,7 +18,8 @@ def obtener_productos():
             "stock": p.stock,
             "stock_minimo": p.stock_minimo,
             "fecha_caducidad": str(p.fecha_caducidad),
-            "lote": p.lote
+            "lote": p.lote,
+            "precio":p.precio
         })
 
     return jsonify(data)
@@ -34,7 +35,8 @@ def crear_producto():
         stock=data["stock"],
         stock_minimo=data["stock_minimo"],
         fecha_caducidad=data["fecha_caducidad"],
-        lote=data.get("lote")
+        lote=data.get("lote"),
+        precio=data.get("precio")
     )
 
     db.session.add(producto)
