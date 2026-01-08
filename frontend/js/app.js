@@ -147,18 +147,34 @@ async function enviarMensaje(event) {
 
         const chatBox = document.getElementById("chatBox");
 
+        // Mostrar mensaje del usuario
         chatBox.innerHTML += `<div class="user">🧑 ${mensaje}</div>`;
 
-        const res = await fetch("http://127.0.0.1:5000/api/chatbot", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mensaje })
-        });
+        try {
+            const res = await fetch("http://127.0.0.1:5000/api/chatbot", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mensaje })
+            });
 
-        const data = await res.json();
+            const data = await res.json();
 
-        chatBox.innerHTML += `<div class="bot">🤖 ${data.respuesta}</div>`;
-        chatBox.scrollTop = chatBox.scrollHeight;
+            // 🔹 MEJORA AQUÍ: Procesar la respuesta de la IA
+            // 1. Reemplazamos los saltos de línea por <br>
+            // 2. Reemplazamos las negritas de Markdown (**) por etiquetas <b> de HTML
+            let respuestaFormateada = data.respuesta
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+            chatBox.innerHTML += `<div class="bot">🤖 ${respuestaFormateada}</div>`;
+            
+            // Scroll automático al final
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+        } catch (error) {
+            console.error("Error:", error);
+            chatBox.innerHTML += `<div class="bot">⚠️ Error al conectar con la IA.</div>`;
+        }
 
         input.value = "";
     }
