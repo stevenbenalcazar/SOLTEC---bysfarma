@@ -281,3 +281,14 @@ function mostrarMenuUsuariosSegunRol() {
 
 // Llamar la función al cargar la página
 mostrarMenuUsuariosSegunRol();
+
+function syncProductos() {
+    fetch(`${API_URL}/sync-productos`, {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(`✔ ${data.creados} creados | 🔁 ${data.actualizados} actualizados`);
+        location.reload();
+    });
+}

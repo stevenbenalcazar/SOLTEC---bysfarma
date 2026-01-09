@@ -14,3 +14,4 @@ Werkzeug==3.1.4
 pymysql
 flask-bcrypt
 gunicorn
+python-dotenv

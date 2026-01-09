@@ -18,7 +18,8 @@ def obtener_productos():
             "stock": p.stock,
             "stock_minimo": p.stock_minimo,
             "fecha_caducidad": str(p.fecha_caducidad),
-            "lote": p.lote
+            "lote": p.lote,
+            "precio": p.precio
         })
 
     return jsonify(data)
@@ -45,7 +46,7 @@ def crear_producto():
 @inventario_bp.route("/dashboard", methods=["GET"])
 def dashboard_data():
     total_productos = Producto.query.count()
-    stock_bajo = Producto.query.filter(Producto.stock <= 5).count()
+    stock_bajo = Producto.query.filter(Producto.stock <= 3).count()
     alertas_activas = Alerta.query.filter(Alerta.estado == "activa").count()
 
     return {
@@ -53,3 +54,46 @@ def dashboard_data():
         "stock_bajo": stock_bajo,
         "alertas_activas": alertas_activas
     }
+
+@inventario_bp.route("/sync-productos", methods=["POST"])
+def sync_productos():
+    from models import Producto, ProductoFarmacia
+
+    productos_farmacia = ProductoFarmacia.query.filter_by(
+        estado_producto="ACTIVO"
+    ).all()
+
+    creados = 0
+    actualizados = 0
+
+    for pf in productos_farmacia:
+        producto = Producto.query.filter_by(
+            nombre=pf.pro_nompro,
+            lote=pf.lote
+        ).first()
+
+        if producto:
+            producto.stock = pf.cantidad_stock
+            producto.fecha_caducidad = pf.fecha_caducidad
+            producto.precio = pf.precio
+            actualizados += 1
+        else:
+            nuevo = Producto(
+                nombre=pf.pro_nompro,
+                categoria=pf.age_nombre,
+                stock=pf.cantidad_stock,
+                stock_minimo=10,
+                fecha_caducidad=pf.fecha_caducidad,
+                lote=pf.lote,
+                precio=pf.precio
+            )
+            db.session.add(nuevo)
+            creados += 1
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Sincronización completada",
+        "creados": creados,
+        "actualizados": actualizados
+    })
