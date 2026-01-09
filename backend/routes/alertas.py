@@ -27,7 +27,7 @@ def generar_alertas():
     productos = Producto.query.all()
 
     for p in productos:
-        if p.stock <= 5:
+        if p.stock <= 2:
             alerta = Alerta(
                 tipo="Stock Bajo",
                 descripcion=f"El producto {p.nombre} tiene stock bajo",
