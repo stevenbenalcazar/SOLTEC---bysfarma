@@ -35,7 +35,8 @@ def crear_producto():
         stock=data["stock"],
         stock_minimo=data["stock_minimo"],
         fecha_caducidad=data["fecha_caducidad"],
-        lote=data.get("lote")
+        lote=data.get("lote"),
+        precio=data.get("precio")
     )
 
     db.session.add(producto)
