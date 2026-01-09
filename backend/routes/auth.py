@@ -1,5 +1,8 @@
 from flask import Blueprint, request, jsonify
 from models.usuario import Usuario, bcrypt
+from flask_mail import Message
+from flask import current_app
+
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -32,3 +35,25 @@ def login():
             "rol": usuario.rol
         }
     })
+
+def enviar_correo_usuario(correo, nombre, password):
+    msg = Message(
+            subject="Usuario creado en SOLTEC",
+            recipients=[correo],
+            body=f"""
+    Hola {nombre},
+
+    Tu usuario ha sido creado correctamente en el sistema SOLTEC.
+
+    Correo: {correo}
+    Contraseña: {password}
+
+    Por favor, cambia tu contraseña al iniciar sesión.
+
+    Saludos,
+    Equipo SOLTEC
+    """
+        )
+    current_app.extensions["mail"].send(msg)
+
+

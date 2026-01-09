@@ -13,16 +13,20 @@ from routes.alertas import alertas_bp
 from routes.chatbot import chatbot_bp
 from routes.auth import auth_bp
 from routes.usuarios import usuarios_bp
+from flask_mail import Mail
+
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    mail.init_app(app)
 
     # Inicializar extensiones
     db.init_app(app)
     CORS(app)
 
+    mail = Mail()
     # Registrar blueprints
     app.register_blueprint(inventario_bp, url_prefix="/api")
     app.register_blueprint(alertas_bp, url_prefix="/api")

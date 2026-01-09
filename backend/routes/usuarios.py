@@ -4,7 +4,6 @@ from models.usuario import Usuario
 
 usuarios_bp = Blueprint("usuarios", __name__)
 
-
 @usuarios_bp.route("/usuarios", methods=["GET"])
 def listar_usuarios():
     usuarios = Usuario.query.all()
@@ -42,8 +41,11 @@ def crear_usuario():
     usuario.set_password(data["password"])  # guardar hash
     db.session.add(usuario)
     db.session.commit()
-
-    return jsonify({"message": "Usuario creado correctamente"}), 201
+    # 📧 Enviar correo
+    enviar_correo_usuario(correo, nombre, password)
+    return jsonify({"message": "Usuario creado y correo enviado"}), 201
+    
+ 
 
 
 @usuarios_bp.route("/usuarios/<int:id>/estado", methods=["PUT"])

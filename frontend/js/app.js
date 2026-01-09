@@ -242,6 +242,12 @@ async function crearUsuario() {
     const password = document.getElementById("password").value;
     const rol = document.getElementById("rol").value;
 
+    // 🔒 VALIDACIÓN DE CORREO (AQUÍ VA)
+    if (!validarCorreo(correo)) {
+        alert("Correo inválido");
+        return; // ⛔ corta aquí, no llega al backend
+    }
+
     const res = await fetch(`${API_URL}/usuarios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -249,10 +255,11 @@ async function crearUsuario() {
     });
 
     const data = await res.json();
-    alert(data.message);
+    alert(data.message || data.error);
 
     cargarUsuarios();
 }
+
 
 async function cambiarEstado(id) {
     await fetch(`${API_URL}/usuarios/${id}/estado`, {
@@ -291,4 +298,21 @@ function syncProductos() {
         alert(`✔ ${data.creados} creados | 🔁 ${data.actualizados} actualizados`);
         location.reload();
     });
+}
+
+function validarCorreo(correo) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(correo);
+
+}
+
+function enviarFormularioUsuario() {
+    const correo = document.getElementById("correo").value;
+
+    if (!validarCorreo(correo)) {
+        alert("Correo inválido");
+        return; // ✅ AHORA sí es válido
+    }
+
+    // fetch aquí
 }
