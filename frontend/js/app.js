@@ -316,3 +316,13 @@ function enviarFormularioUsuario() {
 
     // fetch aquí
 }
+
+function buscarInventario() {
+    const texto = document.getElementById("busquedaInventario").value.toLowerCase();
+    const filas = document.querySelectorAll("#tablaInventario tr");
+
+    filas.forEach(fila => {
+        const contenido = fila.innerText.toLowerCase();
+        fila.style.display = contenido.includes(texto) ? "" : "none";
+    });
+}
