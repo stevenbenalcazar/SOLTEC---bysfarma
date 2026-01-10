@@ -16,6 +16,7 @@ from routes.usuarios import usuarios_bp
 from flask_mail import Mail
 
 
+mail = Mail()
 
 def create_app():
     app = Flask(__name__)
@@ -26,7 +27,7 @@ def create_app():
     db.init_app(app)
     CORS(app)
 
-    mail = Mail()
+    mail.init_app(app)  # ✅ ahora sí existe
     # Registrar blueprints
     app.register_blueprint(inventario_bp, url_prefix="/api")
     app.register_blueprint(alertas_bp, url_prefix="/api")
