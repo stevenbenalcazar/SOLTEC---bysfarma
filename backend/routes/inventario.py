@@ -68,9 +68,12 @@ def sync_productos():
     actualizados = 0
 
     for pf in productos_farmacia:
-        producto = Producto.query.filter_by(
-            nombre=pf.pro_nompro,
-            lote=pf.lote
+        nombre_pf = pf.pro_nompro.strip().lower()
+        lote_pf = (pf.lote or "").strip()
+
+        producto = Producto.query.filter(
+            db.func.lower(Producto.nombre) == nombre_pf,
+            Producto.lote == lote_pf
         ).first()
 
         if producto:
@@ -80,7 +83,7 @@ def sync_productos():
             actualizados += 1
         else:
             nuevo = Producto(
-                nombre=pf.pro_nompro,
+                nombre=pf.pro_nompro.strip(),
                 categoria=pf.age_nombre,
                 stock=pf.cantidad_stock,
                 stock_minimo=10,

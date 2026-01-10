@@ -242,6 +242,12 @@ async function crearUsuario() {
     const password = document.getElementById("password").value;
     const rol = document.getElementById("rol").value;
 
+    // 🔒 VALIDACIÓN DE CORREO (AQUÍ VA)
+    if (!validarCorreo(correo)) {
+        alert("Correo inválido");
+        return; // ⛔ corta aquí, no llega al backend
+    }
+
     const res = await fetch(`${API_URL}/usuarios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -249,10 +255,11 @@ async function crearUsuario() {
     });
 
     const data = await res.json();
-    alert(data.message);
+    alert(data.message || data.error);
 
     cargarUsuarios();
 }
+
 
 async function cambiarEstado(id) {
     await fetch(`${API_URL}/usuarios/${id}/estado`, {
@@ -290,5 +297,32 @@ function syncProductos() {
     .then(data => {
         alert(`✔ ${data.creados} creados | 🔁 ${data.actualizados} actualizados`);
         location.reload();
+    });
+}
+
+function validarCorreo(correo) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(correo);
+
+}
+
+function enviarFormularioUsuario() {
+    const correo = document.getElementById("correo").value;
+
+    if (!validarCorreo(correo)) {
+        alert("Correo inválido");
+        return; // ✅ AHORA sí es válido
+    }
+
+    // fetch aquí
+}
+
+function buscarInventario() {
+    const texto = document.getElementById("busquedaInventario").value.toLowerCase();
+    const filas = document.querySelectorAll("#tablaInventario tr");
+
+    filas.forEach(fila => {
+        const contenido = fila.innerText.toLowerCase();
+        fila.style.display = contenido.includes(texto) ? "" : "none";
     });
 }

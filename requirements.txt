@@ -15,3 +15,4 @@ pymysql
 flask-bcrypt
 gunicorn
 python-dotenv
+flask-mail
