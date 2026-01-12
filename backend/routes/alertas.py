@@ -1,47 +1,60 @@
 from flask import Blueprint, jsonify
-from database import db
-from models import Producto, Alerta
-from datetime import date
+from models import Producto
+from datetime import date, timedelta
 
 alertas_bp = Blueprint("alertas", __name__)
 
 @alertas_bp.route("/alertas", methods=["GET"])
 def obtener_alertas():
-    alertas = Alerta.query.all()
+    hoy = date.today()
+    limite = hoy + timedelta(days=30)
+
+    productos = Producto.query.all()
     data = []
 
-    for a in alertas:
-        data.append({
-            "id": a.id_alerta,
-            "tipo": a.tipo,
-            "descripcion": a.descripcion,
-            "estado": a.estado,
-            "fecha": str(a.fecha)
-        })
+    for p in productos:
+        fecha = str(p.fecha_caducidad) if p.fecha_caducidad else "-"
+        # 🔥 Caducado
+        if p.fecha_caducidad and p.fecha_caducidad <= hoy:
+            data.append({
+                "producto_id": p.id_producto,
+                "producto": p.nombre,
+                "fecha_caducidad": fecha,
+                "stock": p.stock,
+                "estado": "CADUCADO"
+            })
+            continue
+
+        # 🟡 Próximo a caducar (30 días)
+        if p.fecha_caducidad and hoy < p.fecha_caducidad <= limite:
+            data.append({
+                "producto_id": p.id_producto,
+                "producto": p.nombre,
+                "fecha_caducidad": fecha,
+                "stock": p.stock,
+                "estado": "PRÓXIMO A CADUCAR"
+            })
+            continue
+
+        # 🔴 Stock crítico
+        if p.stock == 0:
+            data.append({
+                "producto_id": p.id_producto,
+                "producto": p.nombre,
+                "fecha_caducidad": fecha,
+                "stock": p.stock,
+                "estado": "CRÍTICO"
+            })
+            continue
+
+        # 🟠 Stock bajo
+        if p.stock_minimo is not None and p.stock <= p.stock_minimo:
+            data.append({
+                "producto_id": p.id_producto,
+                "producto": p.nombre,
+                "fecha_caducidad": fecha,
+                "stock": p.stock,
+                "estado": "BAJO"
+            })
 
     return jsonify(data)
-
-
-@alertas_bp.route("/alertas/generar", methods=["GET"])
-def generar_alertas():
-    productos = Producto.query.all()
-
-    for p in productos:
-        if p.stock <= 2:
-            alerta = Alerta(
-                tipo="Stock Bajo",
-                descripcion=f"El producto {p.nombre} tiene stock bajo",
-                estado="activa"
-            )
-            db.session.add(alerta)
-
-        if p.fecha_caducidad and p.fecha_caducidad <= date.today():
-            alerta = Alerta(
-                tipo="Producto Caducado",
-                descripcion=f"El producto {p.nombre} está caducado",
-                estado="activa"
-            )
-            db.session.add(alerta)
-
-    db.session.commit()
-    return jsonify({"message": "Alertas generadas correctamente"})

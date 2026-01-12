@@ -25,8 +25,28 @@
 
     <main class="content">
         <h1>Alertas del Sistema</h1>
+        <input 
+            type="text"
+            id="busquedaAlertas"
+            placeholder="Buscar alerta..."
+            onkeyup="buscarAlertas()">
 
-        <div id="contenedorAlertas"></div>
+        <div class="card">
+            <h3>Productos en alerta</h3>
+        
+            <table class="tabla-alertas">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>fecha de caducidad</th>
+                        <th>Stock actual</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                        </tr>
+                </thead>
+                <tbody id="contenedorAlertas"></tbody>
+            </table>
+        </div>            
     </main>
 </div>
 
@@ -37,3 +57,17 @@
 
 </body>
 </html>
+
+<div id="modalReponer" class="modal">
+    <div class="modal-content">
+      <h3>Actualizar producto</h3>
+  
+      <input type="number" id="nuevoStock" placeholder="Nuevo stock">
+      <input type="date" id="nuevaFecha">
+  
+      <textarea id="observacion" placeholder="¿Qué acción se tomó?"></textarea>
+  
+      <button onclick="confirmarReponer()">Guardar</button>
+      <button onclick="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
