@@ -25,29 +25,32 @@
     
     <main class="content">
         <h1>Gestión de Inventario</h1>
+        
+        <div class="inventory-controls">
             <input 
-            type="text" 
-            id="busquedaInventario"
-            placeholder="Buscar producto..."
-            onkeyup="buscarInventario()">
-
+                type="text" 
+                id="busquedaInventario"
+                placeholder="Buscar por nombre o código..."
+                onkeyup="buscarInventario()">
+            
+            <button class="btn-sync" onclick="syncProductos()">
+                🔄 Actualizar desde farmacia
+            </button>
+        </div>
+    
         <table>
             <thead>
                 <tr>
                     <th>Producto</th>
                     <th>Categoría</th>
                     <th>Stock</th>
-                    <th>Stock Mínimo</th>
+                    <th>Mínimo</th>
                     <th>Caducidad</th>
                     <th>Precio</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody id="tablaInventario">
-                <!-- Datos cargados desde la API -->
-                <button onclick="syncProductos()">
-                    🔄 Actualizar desde farmacia
-                </button>
-            </tbody>
+            <tbody id="tablaInventario"></tbody>
         </table>        
     </main>
 </div>
@@ -60,3 +63,18 @@
 
 </body>
 </html>
+
+<div id="modalEditarProducto" class="modal">
+    <div class="modal-content">
+      <h3>Editar producto</h3>
+  
+      <input type="number" id="editStock" placeholder="Stock">
+      <input type="number" id="editStockMin" placeholder="Stock mínimo">
+      <input type="date" id="editFecha">
+      <input type="number" step="0.01" id="editPrecio" placeholder="Precio">
+  
+      <button onclick="guardarEdicionProducto()">Guardar</button>
+      <button onclick="cerrarModalProducto()">Cancelar</button>
+    </div>
+  </div>
+  

@@ -1,7 +1,3 @@
-function login() {
-    window.location.href = "dashboard.html";
-}
-
 function sendMessage(event) {
     if (event.key === "Enter") {
         alert("Respuesta IA simulada: El producto tiene stock suficiente.");
@@ -11,28 +7,6 @@ function sendMessage(event) {
 
 const API_URL = "http://127.0.0.1:5000/api";
 
-async function cargarDashboard() {
-    try {
-        const res = await fetch(`${API_URL}/productos`);
-        const productos = await res.json();
-
-        document.getElementById("totalProductos").innerText = productos.length;
-
-        const stockBajo = productos.filter(p => p.stock <= p.stock_minimo).length;
-        document.getElementById("stockBajo").innerText = stockBajo;
-
-        const hoy = new Date();
-        const porCaducar = productos.filter(p => {
-            const fecha = new Date(p.fecha_caducidad);
-            return fecha <= hoy;
-        }).length;
-
-        document.getElementById("porCaducar").innerText = porCaducar;
-
-    } catch (error) {
-        console.error("Error cargando dashboard", error);
-    }
-}
 
 async function cargarInventario() {
     try {
@@ -52,7 +26,13 @@ async function cargarInventario() {
                     <td>${p.stock}</td>
                     <td>${p.stock_minimo}</td>
                     <td>${p.fecha_caducidad || "-"}</td>
-                </tr>
+                    <td>${p.precio ?? "0.00"}</td>
+                    <td>
+                    <button onclick="abrirEditarProducto(${p.id})">
+                        ✏️ Editar
+                    </button>
+                </td>
+            </tr>
             `;
         });
 
@@ -72,21 +52,49 @@ async function cargarAlertas() {
         contenedor.innerHTML = "";
 
         if (alertas.length === 0) {
-            contenedor.innerHTML = "<p>No hay alertas activas.</p>";
+            contenedor.innerHTML = `
+                <tr>
+                    <td colspan="5">No hay alertas activas.</td>
+                </tr>
+            `;
             return;
         }
 
         alertas.forEach(a => {
-            const tipoClase = a.tipo.toLowerCase().includes("stock")
-                ? "warning"
-                : "danger";
 
+            let clase = "bajo";
+            let icono = "⚠️";
+        
+            if (a.estado === "CRÍTICO") {
+                clase = "critico";
+                icono = "🚨";
+            } else if (a.estado === "CADUCADO") {
+                clase = "caducado";
+                icono = "⛔";
+            } else if (a.estado === "PRÓXIMO A CADUCAR") {
+                clase = "proximo";
+                icono = "⏳";
+            }
+        
             contenedor.innerHTML += `
-                <div class="alert ${tipoClase}">
-                    <strong>${a.tipo}:</strong> ${a.descripcion}
-                </div>
+                <tr>
+                    <td><strong>${a.producto}</strong></td>
+                    <td>${a.fecha_caducidad}</td>
+                    <td>${a.stock} unidades</td>
+                    <td>
+                        <span class="estado ${clase}">
+                            ${icono} ${a.estado}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-reponer"
+                            onclick="abrirReponer(${a.producto_id})">
+                            Reponer
+                        </button>
+                    </td>
+                </tr>
             `;
-        });
+        });        
 
     } catch (error) {
         console.error("Error cargando alertas", error);
@@ -95,44 +103,96 @@ async function cargarAlertas() {
 
 async function cargarDashboard() {
     try {
-        const res = await fetch("http://127.0.0.1:5000/api/dashboard");
+        const res = await fetch(`${API_URL}/dashboard`);
         const data = await res.json();
 
-        // KPIs
         document.getElementById("totalProductos").innerText = data.total_productos;
         document.getElementById("stockBajo").innerText = data.stock_bajo;
+        document.getElementById("stockCritico").innerText = data.stock_critico;
+        document.getElementById("porCaducar").innerText = data.por_caducar;
+        document.getElementById("caducados").innerText = data.caducados;
         document.getElementById("alertasActivas").innerText = data.alertas_activas;
 
-        // Gráfico
         const ctx = document.getElementById("dashboardChart").getContext("2d");
 
-        new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: ["Total Productos", "Stock Bajo", "Alertas Activas"],
-                datasets: [{
-                    label: "Estado del Inventario",
-                    data: [
-                        data.total_productos,
-                        data.stock_bajo,
-                        data.alertas_activas
-                    ],
-                    backgroundColor: [
-                        "#2563eb",
-                        "#f59e0b",
-                        "#dc2626"
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
+if (window.dashboardChartInstance) {
+    window.dashboardChartInstance.destroy();
+}
+
+window.dashboardChartInstance = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+        labels: [
+            "Stock crítico",
+            "Stock bajo",
+            "Por caducar",
+            "Caducados"
+        ],
+        datasets: [{
+            data: [
+                data.stock_critico,
+                data.stock_bajo,
+                data.por_caducar,
+                data.caducados
+            ],
+            backgroundColor: [
+                "#dc2626",  // crítico
+                "#f59e0b",  // bajo
+                "#2563eb",  // por caducar
+                "#6b7280"   // caducados (gris)
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: "bottom"
             }
-        });
+        }
+    }
+});
+
+const ctxBar = document.getElementById("estadoChart").getContext("2d");
+
+if (window.estadoChartInstance) {
+    window.estadoChartInstance.destroy();
+}
+
+window.estadoChartInstance = new Chart(ctxBar, {
+    type: "bar",
+    data: {
+        labels: ["Crítico", "Bajo", "Por caducar", "Caducados"],
+        datasets: [{
+            label: "Productos",
+            data: [
+                data.stock_critico,
+                data.stock_bajo,
+                data.por_caducar,
+                data.caducados
+            ],
+            backgroundColor: [
+                "#dc2626",
+                "#f59e0b",
+                "#2563eb",
+                "#6b7280"
+            ],
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { precision: 0 }
+            }
+        }
+    }
+});
 
     } catch (error) {
         console.error("Error cargando dashboard", error);
@@ -324,5 +384,112 @@ function buscarInventario() {
     filas.forEach(fila => {
         const contenido = fila.innerText.toLowerCase();
         fila.style.display = contenido.includes(texto) ? "" : "none";
+    });
+}
+
+function editarProducto(id) {
+    const nuevoStock = prompt("Nuevo stock:");
+    const nuevoPrecio = prompt("Nuevo precio:");
+
+    if (nuevoStock === null || nuevoPrecio === null) return;
+
+    fetch(`${API_URL}/productos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            stock: nuevoStock,
+            precio: nuevoPrecio
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        cargarInventario();
+    });
+}
+
+function buscarAlertas() {
+    const texto = document.getElementById("busquedaAlertas").value.toLowerCase();
+    const alertas = document.querySelectorAll(".alert");
+
+    alertas.forEach(a => {
+        a.style.display = a.innerText.toLowerCase().includes(texto) ? "" : "none";
+    });
+}
+
+
+let productoSeleccionado = null;
+
+function abrirReponer(id) {
+    productoSeleccionado = id;
+    document.getElementById("modalReponer").style.display = "block";
+}
+
+function cerrarModal() {
+    document.getElementById("modalReponer").style.display = "none";
+}
+
+async function confirmarReponer() {
+    const stock = document.getElementById("nuevoStock").value;
+    const fecha = document.getElementById("nuevaFecha").value;
+    const observacion = document.getElementById("observacion").value;
+
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    await fetch(`${API_URL}/productos/${productoSeleccionado}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            stock,
+            fecha_caducidad: fecha,
+            observacion,
+            usuario_id: usuario.id
+        })
+    });
+
+    cerrarModal();
+    cargarAlertas();
+    cargarDashboard();
+}
+
+
+let productoEditando = null;
+
+function abrirEditarProducto(id) {
+    productoEditando = id;
+    document.getElementById("modalEditarProducto").style.display = "block";
+}
+
+function cerrarModalProducto() {
+    document.getElementById("modalEditarProducto").style.display = "none";
+}
+
+async function guardarEdicionProducto() {
+    const stock = document.getElementById("editStock").value;
+    const stock_minimo = document.getElementById("editStockMin").value;
+    const fecha_caducidad = document.getElementById("editFecha").value;
+    const precio = document.getElementById("editPrecio").value;
+
+    fetch(`${API_URL}/productos/${productoEditando}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            stock,
+            stock_minimo,
+            fecha_caducidad,
+            precio
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Error al guardar");
+        return res.json();
+    })
+    .then(() => {
+        cerrarModalProducto();
+        cargarInventario(); // 🔁 refresca tabla
+    })
+    .catch(err => {
+        alert("No se pudo actualizar el producto");
+        console.error(err);
     });
 }

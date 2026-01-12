@@ -10,5 +10,12 @@ class Alerta(db.Model):
     estado = db.Column(db.String(20), default="activa")
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # 🔴 ESTO FALTABA
+    producto_id = db.Column(
+        db.Integer,
+        db.ForeignKey("productos.id_producto"),
+        nullable=False
+    )
+    
     def __repr__(self):
         return f"<Alerta {self.tipo}>"
