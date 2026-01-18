@@ -19,11 +19,12 @@ def login():
     if not correo or not password:
         return jsonify({"message": "Correo y contraseña requeridos"}), 400
 
-    # Buscar usuario por correo
     usuario = Usuario.query.filter_by(correo=correo, estado=True).first()
 
-    # Validar contraseña con hash
-    if not usuario or usuario.password != password:
+    if not usuario or not usuario.check_password(password):
+        print(usuario.password)
+        print(usuario.check_password(password))
+
         return jsonify({"message": "Credenciales incorrectas"}), 401
 
     return jsonify({

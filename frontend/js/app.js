@@ -493,3 +493,42 @@ async function guardarEdicionProducto() {
         console.error(err);
     });
 }
+
+function abrirModalNuevoProducto() {
+    document.getElementById("modalNuevoProducto").style.display = "block";
+}
+
+function cerrarModalNuevoProducto() {
+    document.getElementById("modalNuevoProducto").style.display = "none";
+}
+
+async function guardarNuevoProducto() {
+    const data = {
+        nombre: document.getElementById("nuevoNombre").value,
+        categoria: document.getElementById("nuevoCategoria").value,
+        stock: Number(document.getElementById("nuevoStock").value),
+        stock_minimo: Number(document.getElementById("nuevoStockMin").value),
+        precio: Number(document.getElementById("nuevoPrecio").value),
+        fecha_caducidad: document.getElementById("nuevoFecha").value
+    };
+
+    await fetch(`${API_URL}/productos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    cerrarModalNuevoProducto();
+    cargarInventario(); // 🔥 se actualiza al instante
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("loginForm");
+
+    if (form) {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault(); // ⛔ evita que el form recargue la página
+            await login();      // ✅ llama a tu función existente
+        });
+    }
+});

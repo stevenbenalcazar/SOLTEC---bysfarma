@@ -1,8 +1,7 @@
 import os
+import re
 from flask import Blueprint, request, jsonify
 from models import Producto
-from database import db
-from datetime import date
 from dotenv import load_dotenv
 from google import genai
 
@@ -11,45 +10,94 @@ load_dotenv()
 chatbot_bp = Blueprint("chatbot", __name__)
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
+
 @chatbot_bp.route("/chatbot", methods=["POST"])
 def chatbot():
     data = request.get_json()
-    mensaje = data.get("mensaje", "").lower()
+    mensaje = data.get("mensaje", "").lower().strip()
 
-    # 1. Obtener una visión general del inventario (Top 20 productos variados)
-    # Traemos productos con poco stock y productos próximos a vencer para que la IA tenga contexto
-    productos = Producto.query.limit(30).all()
-    
-    # 2. Construir una "Base de Conocimiento" dinámica para el prompt
+    if not mensaje:
+        return jsonify({"respuesta": "No se recibió ninguna consulta."})
+
+    # -------------------------------------------------
+    # 1️⃣ Extraer palabras clave del mensaje
+    # -------------------------------------------------
+    palabras = re.findall(r"\b[a-záéíóúñ]+\b", mensaje)
+
+    # -------------------------------------------------
+    # 2️⃣ Buscar productos relacionados en BD
+    # -------------------------------------------------
+    productos_encontrados = []
+
+    for palabra in palabras:
+        resultados = Producto.query.filter(
+            Producto.nombre.ilike(f"%{palabra}%")
+        ).all()
+        productos_encontrados.extend(resultados)
+
+    # Eliminar duplicados usando PK real
+    productos_encontrados = {
+        p.id_producto: p for p in productos_encontrados
+    }.values()
+
+    # -------------------------------------------------
+    # 3️⃣ Construir contexto dinámico
+    # -------------------------------------------------
     contexto_inventario = ""
-    for p in productos:
-        estado_vencimiento = f"vence el {p.fecha_caducidad}" if p.fecha_caducidad else "sin fecha"
-        contexto_inventario += f"- {p.nombre}: Stock {p.stock}, Precio ${p.precio}, {estado_vencimiento}.\n"
 
-    # 3. El Prompt del Sistema (Aquí es donde ocurre la magia)
+    if productos_encontrados:
+        for p in productos_encontrados:
+            contexto_inventario += (
+                f"Producto: {p.nombre}\n"
+                f"Stock actual: {p.stock}\n"
+                f"Precio: ${p.precio}\n"
+                f"Fecha de caducidad: {p.fecha_caducidad or 'No registrada'}\n\n"
+            )
+    else:
+        # Resumen general real (NO inventado)
+        productos = Producto.query.order_by(Producto.stock.asc()).limit(20).all()
+
+        contexto_inventario = "Resumen del inventario (productos con menor stock):\n\n"
+        for p in productos:
+            contexto_inventario += (
+                f"- {p.nombre}: Stock {p.stock}\n"
+            )
+
+    # -------------------------------------------------
+    # 4️⃣ Prompt profesional para IA
+    # -------------------------------------------------
     prompt_sistema = f"""
-Eres el asistente inteligente de SOLTEC, un sistema de gestión de inventarios.
-Tienes acceso a una muestra del inventario actual:
+Eres el asistente inteligente de SOLTEC, un sistema de gestión de inventarios farmacéuticos.
+
+Tienes acceso a información REAL del inventario de la farmacia.
+
+Datos del inventario:
 {contexto_inventario}
 
-Instrucciones:
-1. Si el usuario pregunta por stock, revisa los datos proporcionados.
-2. Si el usuario pregunta qué comprar o qué vender, actúa como un consultor de negocios.
-3. Si te preguntan algo fuera de inventarios, responde amablemente que solo manejas SOLTEC.
-4. Usa un tono ejecutivo, profesional y breve.
+Instrucciones estrictas:
+- Responde solo usando los datos proporcionados.
+- Si el producto existe, indica su stock real.
+- Si el stock es bajo, sugiere reabastecimiento.
+- Si el producto no existe, indícalo claramente.
+- Usa un lenguaje profesional, ejecutivo y claro.
+- No inventes información.
 
-Pregunta del usuario: "{mensaje}"
+Pregunta del usuario:
+"{mensaje}"
 """
 
+    # -------------------------------------------------
+    # 5️⃣ Llamada a IA (controlada)
+    # -------------------------------------------------
     try:
-        # Nota: He corregido el modelo a gemini-1.5-flash que es el estándar actual
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt_sistema
         )
         respuesta = response.text
+
     except Exception as e:
         print("ERROR IA:", e)
-        respuesta = "Lo siento, tuve un problema técnico al analizar los datos de SOLTEC."
+        respuesta = "No pude analizar el inventario en este momento."
 
     return jsonify({"respuesta": respuesta})

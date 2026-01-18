@@ -3,6 +3,7 @@ from flask_cors import CORS
 
 from config import Config
 from database import db
+from models.usuario import bcrypt
 
 # Importar modelos para que SQLAlchemy los registre
 from models import Usuario, Producto, Movimiento, Alerta, ConsultaChatbot
@@ -14,6 +15,8 @@ from routes.chatbot import chatbot_bp
 from routes.auth import auth_bp
 from routes.usuarios import usuarios_bp
 from flask_mail import Mail
+from models.usuario import bcrypt
+
 
 
 mail = Mail()
@@ -26,7 +29,7 @@ def create_app():
     # Inicializar extensiones
     db.init_app(app)
     CORS(app)
-
+    bcrypt.init_app(app)
     mail.init_app(app)  # ✅ ahora sí existe
     # Registrar blueprints
     app.register_blueprint(inventario_bp, url_prefix="/api")
