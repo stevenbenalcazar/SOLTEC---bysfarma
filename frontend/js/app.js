@@ -503,24 +503,42 @@ function cerrarModalNuevoProducto() {
 }
 
 async function guardarNuevoProducto() {
+
+    const stock = Number(document.getElementById("nuevoStock").value);
+    const stockMin = Number(document.getElementById("nuevoStockMin").value);
+    const precio = Number(document.getElementById("nuevoPrecio").value);
+
+    // ⛔ VALIDACIÓN CLAVE
+    if (stock < 0 || stockMin < 0 || precio < 0) {
+        alert("❌ No se permiten valores negativos en stock, stock mínimo o precio.");
+        return;
+    }
+
     const data = {
         nombre: document.getElementById("nuevoNombre").value,
         categoria: document.getElementById("nuevoCategoria").value,
-        stock: Number(document.getElementById("nuevoStock").value),
-        stock_minimo: Number(document.getElementById("nuevoStockMin").value),
-        precio: Number(document.getElementById("nuevoPrecio").value),
+        stock: stock,
+        stock_minimo: stockMin,
+        precio: precio,
         fecha_caducidad: document.getElementById("nuevoFecha").value
     };
 
-    await fetch(`${API_URL}/productos`, {
+    const res = await fetch(`${API_URL}/productos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
     });
 
+    // 🧠 opcional pero recomendable
+    if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Error al guardar producto");
+        return;
+    }
     cerrarModalNuevoProducto();
     cargarInventario(); // 🔥 se actualiza al instante
 }
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");

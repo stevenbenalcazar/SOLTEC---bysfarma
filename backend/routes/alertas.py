@@ -7,7 +7,7 @@ alertas_bp = Blueprint("alertas", __name__)
 @alertas_bp.route("/alertas", methods=["GET"])
 def obtener_alertas():
     hoy = date.today()
-    limite = hoy + timedelta(days=30)
+    limite = hoy + timedelta(days=60)
 
     productos = Producto.query.all()
     data = []
