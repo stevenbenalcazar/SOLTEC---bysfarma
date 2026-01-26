@@ -550,3 +550,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+function recalcularStockMinimo() {
+    fetch(`${API_URL}/stock-minimo/recalcular`, { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+        alert(`✅ ${data.productos_actualizados} productos actualizados`);
+        cargarInventario();
+    });
+}

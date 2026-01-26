@@ -16,7 +16,7 @@ from routes.auth import auth_bp
 from routes.usuarios import usuarios_bp
 from flask_mail import Mail
 from models.usuario import bcrypt
-
+from routes.zeropos import zeropos_bp
 
 
 mail = Mail()
@@ -37,6 +37,7 @@ def create_app():
     app.register_blueprint(chatbot_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api")
     app.register_blueprint(usuarios_bp, url_prefix="/api")
+    app.register_blueprint(zeropos_bp, url_prefix="/api")
     # Crear tablas
     with app.app_context():
         db.create_all()

@@ -11,6 +11,8 @@ class Producto(db.Model):
     fecha_caducidad = db.Column(db.Date, nullable=False)
     lote = db.Column(db.String(50))
     precio = db.Column(db.Float, nullable=False)
+    codigo_barra = db.Column(db.String(50))
+
 
     movimientos = db.relationship(
         "Movimiento",

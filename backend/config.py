@@ -13,3 +13,8 @@ MAIL_USE_TLS = True
 MAIL_USERNAME = "tucorreo@gmail.com"
 MAIL_PASSWORD = "CLAVE_DE_APLICACION"
 MAIL_DEFAULT_SENDER = "SOLTEC <tucorreo@gmail.com>"
+
+ZEROPOS_DB_HOST = "127.0.0.1"
+ZEROPOS_DB_USER = "usuario_lectura"
+ZEROPOS_DB_PASS = "password"
+ZEROPOS_DB_NAME = "zeropos_db"

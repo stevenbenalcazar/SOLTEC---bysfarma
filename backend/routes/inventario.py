@@ -115,6 +115,8 @@ def sync_productos():
             producto.stock = pf.cantidad_stock
             producto.fecha_caducidad = pf.fecha_caducidad
             producto.precio = pf.precio
+            producto.codigo_barra = pf.pro_codbar
+
             actualizados += 1
         else:
             nuevo = Producto(
@@ -124,7 +126,8 @@ def sync_productos():
                 stock_minimo=10,
                 fecha_caducidad=pf.fecha_caducidad,
                 lote=pf.lote,
-                precio=pf.precio
+                precio=pf.precio,
+                codigo_barra=pf.pro_codbar
             )
             db.session.add(nuevo)
             creados += 1
@@ -145,6 +148,8 @@ def actualizar_producto(id):
     producto = Producto.query.get_or_404(id)
 
     # Actualizar campos
+    stock_anterior = producto.stock or 0
+
     if "stock" in data:
         producto.stock = int(data["stock"])
 
@@ -157,16 +162,72 @@ def actualizar_producto(id):
     if "precio" in data:
         producto.precio = float(data["precio"])
 
-    # Registrar movimiento (opcional)
-    if "usuario_id" in data and "observacion" in data:
-        movimiento = Movimiento(
-            id_producto=id,
-            tipo="entrada",
-            cantidad=data.get("stock", 0),
-            fecha=db.func.now()
-        )
-        db.session.add(movimiento)
+        # Registrar movimiento (entrada/salida) basado en diferencia de stock
+    if "stock" in data and "usuario_id" in data:
+        stock_anterior = producto.stock or 0
+        stock_nuevo = int(data["stock"])
+        delta = stock_nuevo - stock_anterior
+
+        if delta != 0:
+            movimiento = Movimiento(
+                id_producto=id,
+                tipo="entrada" if delta > 0 else "salida",
+                cantidad=abs(delta),
+                fecha=db.func.now()
+            )
+            db.session.add(movimiento)
 
     db.session.commit()
 
     return jsonify({"message": "Producto actualizado correctamente"})
+
+@inventario_bp.route("/stock-minimo/recalcular", methods=["POST"])
+def recalcular_stock_minimo():
+    from models import Producto, Movimiento
+    from datetime import datetime, timedelta
+
+    # Parámetros TOC (puedes moverlos a config.py luego)
+    TR = 7   # tiempo de reposición (días)
+    TP = 1   # tiempo de procesamiento (días)
+    TT = 1   # tiempo de transporte (días)
+    INC = 0.20  # 20% incertidumbre
+
+    VENTANA_DIAS = 7  # demanda semanal (últimos 7 días)
+
+    # Top (tiempo óptimo en días)
+    TOP = (TR + TP + TT) * (1 + INC)
+
+    desde = datetime.now() - timedelta(days=VENTANA_DIAS)
+
+    productos = Producto.query.all()
+    actualizados = 0
+
+    for p in productos:
+        # sumatoria de salidas del producto en la ventana
+        total_salidas = db.session.query(db.func.sum(Movimiento.cantidad)).filter(
+            Movimiento.id_producto == p.id_producto,
+            Movimiento.tipo == "salida",
+            Movimiento.fecha >= desde
+        ).scalar()
+
+        total_salidas = total_salidas or 0
+
+        # venta diaria promedio
+        venta_diaria = total_salidas / VENTANA_DIAS
+
+        # Inventario óptimo (stock mínimo sugerido)
+        stock_minimo_calculado = int(round(venta_diaria * TOP))
+        if stock_minimo_calculado < 0:
+            stock_minimo_calculado = 0
+
+        p.stock_minimo = stock_minimo_calculado
+        actualizados += 1
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Stock mínimo recalculado correctamente",
+        "top_dias": TOP,
+        "ventana_dias": VENTANA_DIAS,
+        "productos_actualizados": actualizados
+    })
